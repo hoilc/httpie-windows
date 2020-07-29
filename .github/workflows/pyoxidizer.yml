@@ -32,9 +32,9 @@ jobs:
     - name: output version
       id: current-version
       run: |
-        $version = ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe --version | Out-String | Trim
+        $version = (${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe --version | Out-String).Trim()
         echo "::set-output name=version::$version"
-        Compress-Archive -LiteralPath ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe -DestinationPath httpie.zip
+        Compress-Archive -LiteralPath ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe -DestinationPath ${{ github.workspace }}\httpie.zip
         
     - name: create release
       id: create-release
