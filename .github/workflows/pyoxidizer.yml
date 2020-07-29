@@ -1,4 +1,4 @@
-name: Rust
+name: HTTPie
 
 on:
   push:
@@ -16,11 +16,44 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: cache .cargo
+      uses: actions/cache@v2
+      with:
+        path: ~\.cargo
+        key: ${{ runner.os }}-cargo
+
     - name: install PyOxidizer
       run: cargo install pyoxidizer
-    - name: build binary
+
+    - name: build httpie binary
       run: pyoxidizer build
-    - uses: actions/upload-artifact@v2
+
+    - name: output version
+      id: current-version
+      run: |
+        $version = ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe --version | Out-String | Trim
+        echo "::set-output name=version::$version"
+        Compress-Archive -LiteralPath ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe -DestinationPath httpie-windows-$version.zip
+        
+    - name: create release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: httpie
-        path: ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe
+        tag_name: ${{ steps.current-version.outputs.version }}
+        release_name: Release v${{ steps.current-version.outputs.version }}
+        draft: false
+        prerelease: false
+
+    - name: upload release asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe
+        asset_name: httpie-windows-${{ steps.current-version.outputs.version }}.zip
+        asset_content_type: application/zip
