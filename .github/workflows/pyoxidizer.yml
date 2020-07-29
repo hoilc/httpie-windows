@@ -34,7 +34,7 @@ jobs:
       run: |
         $version = ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe --version | Out-String | Trim
         echo "::set-output name=version::$version"
-        Compress-Archive -LiteralPath ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe -DestinationPath httpie-windows-$version.zip
+        Compress-Archive -LiteralPath ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe -DestinationPath httpie.zip
         
     - name: create release
       id: create-release
@@ -54,6 +54,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe
+        asset_path: ${{ github.workspace }}\httpie.zip
         asset_name: httpie-windows-${{ steps.current-version.outputs.version }}.zip
         asset_content_type: application/zip
