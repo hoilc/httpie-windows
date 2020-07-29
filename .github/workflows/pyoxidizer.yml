@@ -20,3 +20,7 @@ jobs:
       run: cargo install pyoxidizer
     - name: build binary
       run: pyoxidizer build
+    - uses: actions/upload-artifact@v2
+      with:
+        name: httpie
+        path: ${{ github.workspace }}\build\x86_64-pc-windows-msvc\debug\exe\http.exe
